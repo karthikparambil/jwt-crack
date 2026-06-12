@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 JWT Cracker
-Author: Karthik P
+Author: Karthik P (https://github.com/karthikparambil/jwt-crack)
   python3 jwt_cracker.py <TOKEN>
   python3 jwt_cracker.py <TOKEN> -t 3
   python3 jwt_cracker.py <TOKEN> --forge
