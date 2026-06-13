@@ -9,7 +9,7 @@ Author: Karthik P (https://github.com/karthikparambil/jwt-crack)
 """
 
 import argparse, base64, hashlib, hmac as hmac_lib, itertools
-import json, multiprocessing, signal, string, sys, time
+import json, multiprocessing, os, signal, string, sys, time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from rich.progress import MofNCompleteColumn
 from datetime import datetime, timezone
@@ -410,7 +410,7 @@ def _sigint_handler(sig, frame):
     now = time.time()
     if now - _last_sigint < 3.0:
         c.print("\n  [bold red]\u2717  Aborted.[/bold red]")
-        sys.exit(1)
+        os._exit(1)
     if not _warned:
         _last_sigint = now
         _warned = True
