@@ -11,7 +11,8 @@ Author: Karthik P (https://github.com/karthikparambil/jwt-crack)
 import argparse, base64, hashlib, hmac as hmac_lib, itertools
 import json, multiprocessing, os, signal, string, sys, time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from rich.progress import MofNCompleteColumn
+from rich.progress import ProgressColumn
+from rich.text import Text
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -88,6 +89,14 @@ def _brute_w(args):
     return None
 
 # ── attacks ───────────────────────────────────────────────────────────
+class PaddedCompleteColumn(ProgressColumn):
+    """Custom column to right-align task.completed with commas, matched to total length."""
+    def render(self, task):
+        total_str = f"{int(task.total):,}" if task.total else "?"
+        completed_str = f"{int(task.completed):,}"
+        padded_completed = f"{completed_str:>{len(total_str)}}"
+        return Text.from_markup(f"[bright_white]{padded_completed}/{total_str}[/bright_white]")
+
 def dict_attack(token, alg, wl, workers, chunk=8000):
     wl_name = Path(wl).name
     total   = sum(1 for _ in open(wl, errors="ignore"))
@@ -98,7 +107,7 @@ def dict_attack(token, alg, wl, workers, chunk=8000):
             SpinnerColumn("dots", style="green"),
             TextColumn("[green]{task.description}"),
             BarColumn(24, style="dim green", complete_style="bright_green"),
-            TextColumn("[bright_white]{task.completed:,}/{task.total:,}[/bright_white]"),
+            PaddedCompleteColumn(),
             TaskProgressColumn(),
             TimeRemainingColumn(),
             TextColumn("[dim]{task.fields[speed]}[/dim]"),
@@ -135,7 +144,7 @@ def brute_attack(token, alg, workers, mn=1, mx=5, chunk=15000):
             SpinnerColumn("dots12", style="green"),
             TextColumn("[green]{task.description}"),
             BarColumn(24, style="dim green", complete_style="bright_green"),
-            TextColumn("[bright_white]{task.completed:,}/{task.total:,}[/bright_white]"),
+            PaddedCompleteColumn(),
             TaskProgressColumn(),
             TimeRemainingColumn(),
             TextColumn("[dim]{task.fields[speed]}[/dim]"),
