@@ -97,7 +97,7 @@ class PaddedCompleteColumn(ProgressColumn):
         padded_completed = f"{completed_str:>{len(total_str)}}"
         return Text.from_markup(f"[bright_white]{padded_completed}/{total_str}[/bright_white]")
 
-def dict_attack(token, alg, wl, workers, chunk=8000):
+def dict_attack(token, alg, wl, workers, chunk=1024):
     wl_name = Path(wl).name
     total   = sum(1 for _ in open(wl, errors="ignore"))
     start   = time.time(); done = 0
@@ -133,7 +133,7 @@ def dict_attack(token, alg, wl, workers, chunk=8000):
                     return r, done, time.time()-start
     return None, done, time.time()-start
 
-def brute_attack(token, alg, workers, mn=1, mx=5, chunk=15000):
+def brute_attack(token, alg, workers, mn=1, mx=5, chunk=8192):
     cs    = string.ascii_lowercase + string.digits + "!@#$_"
     total = sum(len(cs)**l for l in range(mn, mx+1))
     start = time.time(); done = 0
