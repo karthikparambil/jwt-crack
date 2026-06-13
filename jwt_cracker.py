@@ -31,8 +31,7 @@ WIDTH = 62
 c = Console(highlight=False)
 
 ALGO_MAP  = {"HS256": hashlib.sha256, "HS384": hashlib.sha384, "HS512": hashlib.sha512}
-WORDLISTS = [str(Path(__file__).parent / "jwt_wordlist.txt"),
-             "/usr/share/wordlists/rockyou.txt"]
+WORDLISTS = [str(Path(__file__).parent / "jwt_wordlist.txt")]
 
 BANNER = """
    ╔╦╗ ╦ ╦ ╔╦╗   ╔═╗ ╦═╗ ╔═╗ ╔═╗ ╦╔═ ╔═╗ ╦═╗
@@ -99,7 +98,7 @@ def dict_attack(token, alg, wl, workers, chunk=8000):
             SpinnerColumn("dots", style="green"),
             TextColumn("[green]{task.description}"),
             BarColumn(24, style="dim green", complete_style="bright_green"),
-            MofNCompleteColumn(),
+            TextColumn("[bright_white]{task.completed:,}[/bright_white] / [bright_white]{task.total:,}[/bright_white]"),
             TaskProgressColumn(),
             TimeRemainingColumn(),
             TextColumn("[dim]{task.fields[speed]}[/dim]"),
@@ -136,7 +135,7 @@ def brute_attack(token, alg, workers, mn=1, mx=5, chunk=15000):
             SpinnerColumn("dots12", style="green"),
             TextColumn("[green]{task.description}"),
             BarColumn(24, style="dim green", complete_style="bright_green"),
-            MofNCompleteColumn(),
+            TextColumn("[bright_white]{task.completed:,}[/bright_white] / [bright_white]{task.total:,}[/bright_white]"),
             TaskProgressColumn(),
             TimeRemainingColumn(),
             TextColumn("[dim]{task.fields[speed]}[/dim]"),
