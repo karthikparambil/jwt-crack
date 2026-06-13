@@ -448,8 +448,8 @@ SPEED_LABEL = {
 def main():
     ap = argparse.ArgumentParser(add_help=False)
     ap.add_argument("token", nargs="?")
-    ap.add_argument("-w", "--wordlist", default=None, metavar="FILE",
-                    help="Wordlist to use (default: jwt_wordlist.txt)")
+    ap.add_argument("-w", "--wordlist", default=None, metavar="PATH",
+                    help="Wordlist file or directory to use")
     ap.add_argument("-t", "--threads", type=int, default=5, metavar="1-5",
                     help="Speed/thread tier (1=slow … 5=max, default: 5)")
     ap.add_argument("--forge", nargs="?", const="__i__", default=None, metavar="JSON")
@@ -462,7 +462,7 @@ def main():
     if args.help:
         c.print("[bold green]JWTCRACK[/bold green]")
         c.print("  python3 jwt_cracker.py <TOKEN>")
-        c.print("  python3 jwt_cracker.py <TOKEN> -w custom.txt")
+        c.print("  python3 jwt_cracker.py <TOKEN> -w /path/to/wordlist_dir/")
         c.print("  python3 jwt_cracker.py <TOKEN> -t 3          [dim]# speed 1-5[/dim]")
         c.print("  python3 jwt_cracker.py <TOKEN> --forge")
         c.print("  python3 jwt_cracker.py <TOKEN> --forge '{\"sub\":\"admin\"}'")
@@ -508,19 +508,29 @@ def main():
     total_n, total_t, secret = 0, 0.0, None
 
     # resolve wordlist: -w flag → default list → fallback
+    wls = []
     if args.wordlist:
-        wl = args.wordlist if Path(args.wordlist).exists() else None
-        if not wl:
-            c.print(f"  [red]wordlist not found: {args.wordlist}[/red]")
+        p = Path(args.wordlist)
+        if p.is_dir():
+            wls = [str(f) for f in p.rglob("*") if f.is_file()]
+            if not wls:
+                c.print(f"  [red]no files found in directory: {args.wordlist}[/red]")
+        elif p.exists():
+            wls = [str(p)]
+        else:
+            c.print(f"  [red]path not found: {args.wordlist}[/red]")
     else:
         wl = next((p for p in WORDLISTS if Path(p).exists()), None)
+        if wl: wls.append(wl)
 
     try:
-        if wl:
-            c.print(f"  [dim]→ dict  {Path(wl).name}[/dim]")
-            secret, n, t = dict_attack(token, alg, wl, workers)
-            total_n += n; total_t += t
-            if not secret:
+        if wls:
+            for wl in wls:
+                c.print(f"  [dim]→ dict  {Path(wl).name}[/dim]")
+                secret, n, t = dict_attack(token, alg, wl, workers)
+                total_n += n; total_t += t
+                if secret:
+                    break
                 c.print(f"  [dim]  not found ({n:,} in {t:.1f}s)[/dim]")
         else:
             c.print("  [dim]no wordlist — skipping dict[/dim]")
